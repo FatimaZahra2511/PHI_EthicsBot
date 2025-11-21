@@ -19,9 +19,7 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 def load_data():
     df = pd.read_csv(
         "floridi_dataset_final.csv",
-        sep=";",            
-        encoding="utf-8",   
-        engine="python"
+        encoding="utf-8"
     )
 
     # Clean invisible whitespace
@@ -43,6 +41,9 @@ def load_data():
     vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
     X = vec.fit_transform(df["__text__"])
     return df, vec, X
+
+df, vec, X = load_data()
+
 
 
 # ----------------------------
