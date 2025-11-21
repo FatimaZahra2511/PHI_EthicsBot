@@ -19,12 +19,12 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 def load_data():
     df = pd.read_csv(
         "floridi_dataset_final.csv",
-        encoding="latin1",
-        on_bad_lines="skip",
+        sep=";",            
+        encoding="utf-8",   
         engine="python"
     )
 
-    # Clean invisible whitespace + fix bad cells
+    # Clean invisible whitespace
     df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
     # Ensure required columns exist
@@ -35,9 +35,9 @@ def load_data():
 
     # Build retrieval text
     df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
-    df = df[df["__text__"].str.strip() != ""]
 
-    #  Remove rows with empty text (prevents empty vocabulary)
+    # Drop empty rows (safety)
+    df = df[df["__text__"].str.strip() != ""]
     df = df[df["__text__"].str.len() > 3].reset_index(drop=True)
 
     vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
