@@ -93,6 +93,9 @@ if "answers" not in st.session_state:
 q = st.text_input("Ask an ethical question about AI/data/systems:")
 
 if q:
+    if X.shape[0] == 0:
+    st.error("Dataset contains no usable text. Please verify CSV formatting.")
+    st.stop()
     results = retrieve(q, k=3)
     top = results.iloc[0]
 
