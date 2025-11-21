@@ -18,7 +18,7 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 @st.cache_data
 def load_data():
     df = pd.read_csv(
-        "floridi_dataset_final.csv",
+        "floridi's_dataset_final.csv",
         encoding="utf-8"
     )
 
