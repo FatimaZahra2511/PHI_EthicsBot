@@ -17,30 +17,37 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 
 @st.cache_data
 def load_data():
+    # 1. Read the CSV (semicolon-separated, UTF-8)
     df = pd.read_csv(
-        "floridi's_dataset_final.csv",
-        encoding="utf-8"
+        "floridi's_dataset_final.csv",  # 👈 new clean name, no apostrophe
+        sep=";",                      # 👈 important: semicolon delimiter
+        encoding="utf-8",
+        on_bad_lines="skip",          # skip any weird rows instead of crashing
+        engine="python"
     )
 
-    # Clean invisible whitespace
+    # 2. Clean invisible whitespace
     df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
-    # Ensure required columns exist
+    # 3. Ensure required columns exist
     for col in ["chapter", "theme", "claim", "quote", "page_ref", "design_guideline"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
 
-    # Build retrieval text
+    # 4. Build retrieval text
     df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
 
-    # Drop empty rows (safety)
+    # 5. Drop empty rows (safety)
     df = df[df["__text__"].str.strip() != ""]
     df = df[df["__text__"].str.len() > 3].reset_index(drop=True)
 
+    # 6. Vectorizer
     vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
     X = vec.fit_transform(df["__text__"])
+
     return df, vec, X
+
 
 df, vec, X = load_data()
 
