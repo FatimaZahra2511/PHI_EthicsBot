@@ -51,7 +51,7 @@ The AI agent is deployed on Streamlit Cloud and can be used directly:
 
 No installation required — open the link and ask any ethical question related to AI, data, and digital systems.
 
-📌 Features in the live demo:
+ Features in the live demo:
 - Grounded answers with philosophical themes
 - Direct quotes from Floridi’s *The Ethics of Information*
 - Page references + book page snapshot
