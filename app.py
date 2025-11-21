@@ -35,6 +35,7 @@ def load_data():
 
     # Build retrieval text
     df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
+    df = df[df["__text__"].str.strip() != ""]
 
     #  Remove rows with empty text (prevents empty vocabulary)
     df = df[df["__text__"].str.len() > 3].reset_index(drop=True)
