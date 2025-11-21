@@ -23,9 +23,20 @@ def load_data():
             df[col] = ""
         df[col] = df[col].fillna("")
     # Build text for retrieval
-    df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
-    vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
-    X = vec.fit_transform(df["__text__"])
+    # Build robust combined text for retrieval
+df["combined"] = (
+    df["theme"].astype(str) + " " +
+    df["claim"].astype(str) + " " +
+    df["quote"].astype(str) + " " +
+    df["design_guideline"].astype(str)
+).str.strip()
+
+# Ensure no empty strings — prevents TF-IDF crash
+df["combined"] = df["combined"].replace("", "information ethics")
+
+vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
+X = vec.fit_transform(df["combined"])
+
     return df, vec, X
 
 df, vec, X = load_data()
