@@ -17,17 +17,32 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("floridi_ethics_dataset.csv", encoding="latin1", on_bad_lines="skip", engine="python")
+    df = pd.read_csv(
+        "floridi_ethics_dataset.csv",
+        encoding="latin1",
+        on_bad_lines="skip",
+        engine="python"
+    )
+
+    # Clean invisible whitespace + fix bad cells
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
+    # Ensure required columns exist
     for col in ["chapter", "theme", "claim", "quote", "page_ref", "design_guideline"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
+
+    # Build retrieval text
     df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
+
+    #  Remove rows with empty text (prevents empty vocabulary)
+    df = df[df["__text__"].str.len() > 3].reset_index(drop=True)
+
     vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
     X = vec.fit_transform(df["__text__"])
     return df, vec, X
 
-df, vec, X = load_data()
 
 # ----------------------------
 # PDF helpers
