@@ -18,28 +18,16 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 @st.cache_data
 def load_data():
     df = pd.read_csv("floridi_ethics_dataset.csv", encoding="latin1", on_bad_lines="skip", engine="python")
-
-    # Ensure columns exist
     for col in ["chapter", "theme", "claim", "quote", "page_ref", "design_guideline"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
-
-    # Build robust combined text for retrieval
-    df["combined"] = (
-        df["theme"].astype(str) + " " +
-        df["claim"].astype(str) + " " +
-        df["quote"].astype(str) + " " +
-        df["design_guideline"].astype(str)
-    ).str.strip()
-
-    # Prevent empty vocabulary crash
-    df["combined"] = df["combined"].replace("", "information ethics")
-
+    df["__text__"] = (df["theme"] + " " + df["claim"] + " " + df["quote"]).astype(str)
     vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
-    X = vec.fit_transform(df["combined"])
-
+    X = vec.fit_transform(df["__text__"])
     return df, vec, X
+
+df, vec, X = load_data()
 
 # ----------------------------
 # PDF helpers
