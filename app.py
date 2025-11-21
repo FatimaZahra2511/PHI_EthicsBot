@@ -14,32 +14,32 @@ st.caption("Answers grounded ONLY in  indexed notes from the book (with page ref
 # ----------------------------
 # Data loading
 # ----------------------------
+
 @st.cache_data
 def load_data():
     df = pd.read_csv("floridi_ethics_dataset.csv", encoding="latin1", on_bad_lines="skip", engine="python")
+
     # Ensure columns exist
     for col in ["chapter", "theme", "claim", "quote", "page_ref", "design_guideline"]:
         if col not in df.columns:
             df[col] = ""
         df[col] = df[col].fillna("")
-    # Build text for retrieval
+
     # Build robust combined text for retrieval
-df["combined"] = (
-    df["theme"].astype(str) + " " +
-    df["claim"].astype(str) + " " +
-    df["quote"].astype(str) + " " +
-    df["design_guideline"].astype(str)
-).str.strip()
+    df["combined"] = (
+        df["theme"].astype(str) + " " +
+        df["claim"].astype(str) + " " +
+        df["quote"].astype(str) + " " +
+        df["design_guideline"].astype(str)
+    ).str.strip()
 
-# Ensure no empty strings — prevents TF-IDF crash
-df["combined"] = df["combined"].replace("", "information ethics")
+    # Prevent empty vocabulary crash
+    df["combined"] = df["combined"].replace("", "information ethics")
 
-vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
-X = vec.fit_transform(df["combined"])
+    vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
+    X = vec.fit_transform(df["combined"])
 
     return df, vec, X
-
-df, vec, X = load_data()
 
 # ----------------------------
 # PDF helpers
